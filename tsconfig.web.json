@@ -1,0 +1,11 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": ["app/**/*", "lib/shared/**/*"],
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "types": ["electron-vite/node"],
+    "paths": { "@/*": ["./*"] }
+  }
+}

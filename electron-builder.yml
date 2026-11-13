@@ -1,0 +1,61 @@
+appId: com.idlewise.app
+productName: 偷闲有道
+# 便携版每次启动都会重新解压，散装文件会让启动多花约 35 秒。
+# 使用 asar 把应用打成单文件；原生模块（koffi / canvas）由 electron-builder 自动解包。
+asar: true
+asarUnpack:
+  - resources/**
+electronLanguages:
+  - zh-CN
+  - en-US
+directories:
+  buildResources: resources/build
+files:
+  - '!**/.vscode/*'
+  - '!app/**'
+  - '!lib/**'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml,package-lock.json}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!{vitest.config.ts,playwright.config.ts,tests/**}'
+  - '!docs/**'
+  - '!scripts/**'
+  - '!artifacts/**'
+  - '!.claude/**'
+  - '!test-results/**'
+  - '!eslint.config.mjs'
+  - '!.prettierrc'
+  - '!*.tsbuildinfo'
+  - '!.idlewise-userdata*/**'
+  - '!.idlewise-userdata/**'
+  - '!dist*/**'
+  - '!dist/**'
+  - '!release/**'
+  - '!out/**/*.map'
+  # pdfjs 在渲染层由 Vite 打包，运行时不读 node_modules；@napi-rs/canvas 是
+  # pdfjs 的 Node 分支可选依赖，本应用未使用。排除后便携版少解压约 45MB。
+  - '!node_modules/pdfjs-dist/**'
+  - '!node_modules/@napi-rs/**'
+win:
+  executableName: idlewise
+  icon: resources/build/icon.ico
+  target:
+    - nsis
+    - portable
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  installerIcon: resources/build/icon.ico
+  uninstallerIcon: resources/build/icon.ico
+  installerHeaderIcon: resources/build/icon.ico
+  createDesktopShortcut: always
+portable:
+  artifactName: ${name}-${version}-portable.${ext}
+  # zip 解压比 7z/LZMA 快，便携版启动约 4.5 秒；体积略增。
+  useZip: true
+npmRebuild: false

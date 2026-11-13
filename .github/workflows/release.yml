@@ -1,0 +1,107 @@
+name: Build Windows Release
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ("v$version" -ne "${{ github.ref_name }}") {
+            throw "Tag ${{ github.ref_name }} does not match package.json version $version"
+          }
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build Windows packages
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:win
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: idlewise-windows-${{ github.run_number }}
+          if-no-files-found: error
+          path: |
+            dist/idlewise-*-setup.exe
+            dist/idlewise-*-portable.exe
+            dist/idlewise-*-setup.exe.blockmap
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: 偷闲有道 ${{ github.ref_name }}
+          generate_release_notes: false
+          body: |
+            ## 偷闲有道 ${{ github.ref_name }}
+
+            首个正式版，Windows 10/11 x64。
+
+            ### 下载
+
+            **推荐使用便携版**：`idlewise-1.0.0-portable.exe`
+            免安装，下载后直接运行；首次启动会解压到临时目录，约 4–5 秒。
+
+            也可使用安装版：`idlewise-1.0.0-setup.exe`
+            支持选择“所有用户 / 仅为我安装”，并可修改安装目录。
+
+            ### 本次亮点
+
+            - 透明置顶、鼠标移开自动隐藏、老板键、密码锁、截屏保护
+            - 多标签浏览器：网页透明（仅保留文字）、网页文字颜色、隐藏滚动条、缩放、手机 UA、视频倍速、按站点兼容模式
+            - 历史/收藏以标签页打开；中键关闭标签、中键链接打开新标签
+            - 本地阅读器：PDF / EPUB / MOBI / AZW3 / TXT，目录、搜索、自动翻页/滚动、进度恢复
+            - AI 工具一级入口：豆包、DeepSeek、Kimi、元宝、智谱、ChatGPT
+
+            ### 安装 / 运行
+
+            - **推荐便携版**：下载后直接运行，无需安装。
+            - 安装版：按向导选择安装范围与目录。
+            - 未配置代码签名证书，首次运行可能出现 SmartScreen 提示。
+
+            ### 系统要求
+
+            - Windows 10/11 x64
+            - 建议预留 400MB 磁盘空间
+          files: |
+            dist/idlewise-*-setup.exe
+            dist/idlewise-*-portable.exe
+            dist/idlewise-*-setup.exe.blockmap

@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+out/
+dist/
+dist-*/
+release/
+*.blockmap
+*.exe
+*.msi
+*.dmg
+*.AppImage
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+coverage/
+tests/report/
+tests/artifacts/
+.idlewise-test-appdata*
+
+# Local app data
+.idlewise-userdata/
+.idlewise-userdata-*/
+
+# Temporary files
+.tmp-*
+*.tmp
+*.pid
+*.log
+*~
+
+# Environment
+.env
+.env.*
+!.env.example
+*.local
+
+# TypeScript / tooling caches
+*.tsbuildinfo
+.vite/
+.cache/
+.eslintcache
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local Claude settings
+.claude/settings.local.json
+
+
+docs/
+CHANGELOG.md
