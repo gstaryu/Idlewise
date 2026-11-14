@@ -121,6 +121,16 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
+如果 Actions 因账号 billing 锁定无法启动，可在本地构建后直接发布：
+
+```bash
+npm run build:win
+npm run release:github -- --dry-run   # 先检查仓库与附件
+GITHUB_TOKEN=... npm run release:github
+```
+
+Token 需要目标仓库的 `Contents: Read and write` 权限；脚本会自动创建/更新 Release，推荐便携版并上传 setup、portable 与 blockmap。
+
 ## 📁 数据与隐私
 
 所有数据保存在 `%APPDATA%\Idlewise`：

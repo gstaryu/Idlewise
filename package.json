@@ -19,6 +19,7 @@
     "format": "prettier --write .",
     "build:win": "npm run build && electron-builder --win",
     "build:dir": "npm run build && electron-builder --dir",
+    "release:github": "node scripts/publish-release.mjs",
     "rename": "node scripts/rename.mjs"
   },
   "dependencies": {
